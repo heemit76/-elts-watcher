@@ -1,0 +1,36 @@
+name: IELTS Sayfa Takibi
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repoyu indir
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Bağımlılıkları kur
+        run: pip install -r requirements.txt
+
+      - name: Siteyi kontrol et
+        env:
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          TO_EMAIL: ${{ secrets.TO_EMAIL }}
+        run: python monitor.py
+
+      - name: Değişikliği kaydet (last_hash.txt)
+        run: |
+          git config user.name "ielts-watcher-bot"
+          git config user.email "actions@github.com"
+          git add last_hash.txt
+          git diff --quiet --cached || git commit -m "Hash güncellendi [skip ci]"
+          git push
