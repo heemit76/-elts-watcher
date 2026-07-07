@@ -20,7 +20,7 @@ from email.mime.text import MIMEText
 import requests
 from bs4 import BeautifulSoup
 
-URL = "http://prep.bilkent.edu.tr/en/ielts/"
+URL = "https://prep.bilkent.edu.tr/en/ielts/"
 HASH_FILE = "last_hash.txt"
 
 # E-posta ayarları ortam değişkenlerinden (GitHub Secrets) okunur
