@@ -20,6 +20,14 @@ jobs:
       - name: Bağımlılıkları kur
         run: pip install -r requirements.txt
 
+      - name: Önceki hash'i geri yükle
+        uses: actions/cache/restore@v4
+        with:
+          path: last_hash.txt
+          key: last-hash-${{ github.run_id }}
+          restore-keys: |
+            last-hash-
+
       - name: Siteyi kontrol et
         env:
           EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
@@ -27,12 +35,8 @@ jobs:
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
         run: python monitor.py
 
-      - name: Değişikliği kaydet (last_hash.txt)
-        run: |
-          git config user.name "ielts-watcher-bot"
-          git config user.email "actions@github.com"
-          git add last_hash.txt
-          
-          git diff --quiet --cached || git commit -m "Hash güncellendi [skip ci]"
-          git pull --rebase origin main
-          git push
+      - name: Yeni hash'i kaydet
+        uses: actions/cache/save@v4
+        with:
+          path: last_hash.txt
+          key: last-hash-${{ github.run_id }}
