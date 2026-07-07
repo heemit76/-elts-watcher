@@ -34,9 +34,21 @@ SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
 
 def fetch_content() -> str:
     """Sayfayı indirir ve sadece ana içerik metnini döndürür (menü/footer gürültüsünü azaltmak için)."""
-    headers = {"User-Agent": "Mozilla/5.0 (compatible; IELTSWatcher/1.0)"}
-    resp = requests.get(URL, headers=headers, timeout=30)
-    resp.raise_for_status()
+    import time
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+    last_error = None
+    for attempt in range(3):
+        try:
+            resp = requests.get(URL, headers=headers, timeout=30)
+            resp.raise_for_status()
+            break
+        except Exception as e:
+            last_error = e
+            if attempt < 2:
+                time.sleep(5)
+    else:
+        raise last_error
+
     soup = BeautifulSoup(resp.text, "html.parser")
 
     # Sadece <main> veya <body> içeriğini al; script/style'ları temizle
